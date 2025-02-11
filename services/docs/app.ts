@@ -66,7 +66,7 @@ const swaggerOptions: Options = {
     ],
   },
   apis: [
-    './controllers/*.ts'   // Path to microservice2 controllers
+    './controllers/*.js'   // Path to microservice2 controllers
   ],
 };
 
