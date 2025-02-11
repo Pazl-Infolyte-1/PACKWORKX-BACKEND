@@ -9,7 +9,7 @@ import swaggerUi from 'swagger-ui-express';
 import path from 'path';
 import swaggerJSDoc, { Options } from 'swagger-jsdoc'; // Corrected import statement for authenticateToken
 const app = express();
-const PORT = 3001;
+const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 dotenv.config();

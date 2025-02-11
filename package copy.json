@@ -7,10 +7,7 @@
     "build": "tsc",
     "company": "nodemon --exec ts-node services/company/app.ts",
     "user": "nodemon --exec ts-node services/user/app.ts",
-    "postinstall": "npm run build",
-    "start:company": "node dist/services/company/server.js",
-    "start:user": "node dist/services/user/server.js",
-    "start:all": "concurrently \"npm run start:company\" \"npm run start:user\""
+    "postinstall": "npm run build"
   },
   "keywords": [],
   "author": "",

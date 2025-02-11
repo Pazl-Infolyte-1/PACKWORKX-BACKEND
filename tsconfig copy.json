@@ -13,8 +13,6 @@
         "resolveJsonModule": true
     },
     "exclude": ["dist"],
-    // "include": ["services/**/*.ts",]
-    "include": ["services/**/*.ts", "controllers/**/*.ts", "app.ts"]
-
+    "include": ["services/**/*.ts"]
 
 }
