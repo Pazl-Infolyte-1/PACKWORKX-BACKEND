@@ -76,7 +76,7 @@ const swaggerSpec = swaggerJSDoc(swaggerOptions);
 // Serve Swagger UI
 const swaggerPath=express.static(path.join(__dirname, '../../public/swagger-custom.js'));
 app.use(
-  `docs`,
+  `/${process.env.FOLDER_NAME}/docs`,
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, {
     customSiteTitle: 'Pacx Works API',
