@@ -66,7 +66,8 @@ const swaggerOptions: Options = {
     ],
   },
   apis: [
-    './controllers/*.js'   // Path to microservice2 controllers
+    path.join(__dirname, './controllers', '*.js')  // Converts to absolute path
+
   ],
 };
 
