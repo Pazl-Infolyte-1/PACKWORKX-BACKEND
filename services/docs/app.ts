@@ -31,7 +31,7 @@ AppDataSource.initialize()
 // Use routes
 
 app.use(authenticateToken);
-app.use(`/${process.env.FOLDER_NAME}`, userroutes);
+// app.use(`/${process.env.FOLDER_NAME}`, userroutes);
 const swaggerOptions: Options = {
   swaggerDefinition: {
     openapi: '3.0.0',
