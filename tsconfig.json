@@ -10,11 +10,9 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "outDir": "./dist",
+        "rootDir": "./",  // ✅ Ensure it compiles all TypeScript files
         "resolveJsonModule": true
     },
-    "exclude": ["dist"],
-    // "include": ["services/**/*.ts",]
-    "include": ["services/**/*.ts", "controllers/**/*.ts", "app.ts"]
-
-
+    "exclude": ["dist", "node_modules"],
+    "include": ["services/**/*.ts", "controllers/**/*.ts", "app.ts", "models/**/*.ts","config/*.ts"] // ✅ Ensure models are included
 }

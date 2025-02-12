@@ -8,21 +8,21 @@ module.exports = {
                 PORT: 3000, // Ensure correct port
             },
         },
-        {
-            name: "user-service",
-            script: "dist/services/user/app.js",
-            watch: true,
-            env: {
-                PORT: 3001, // Ensure correct port
-            },
-        },
-        {
-            name: "api-docd-service",
-            script: "dist/services/docs/app.js",
-            watch: true,
-            env: {
-                PORT: 3002, // Ensure correct port
-            },
-        },
+        // {
+        //     name: "user-service",
+        //     script: "dist/services/user/app.js",
+        //     watch: true,
+        //     env: {
+        //         PORT: 3001, // Ensure correct port
+        //     },
+        // },
+        // {
+        //     name: "api-docd-service",
+        //     script: "dist/services/docs/app.js",
+        //     watch: true,
+        //     env: {
+        //         PORT: 3002, // Ensure correct port
+        //     },
+        // },
     ],
 };
