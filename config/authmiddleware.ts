@@ -34,7 +34,8 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     const protectedPaths: string[] = [
         `/${process.env.FOLDER_NAME}/company`,
         `/${process.env.FOLDER_NAME}/user/register`,
-        `/${process.env.FOLDER_NAME}/user/login`
+        `/${process.env.FOLDER_NAME}/user/login`,
+        `/${process.env.FOLDER_NAME}/company/`,
     ];
 
     // If the requested path is not protected, skip token validation
@@ -45,9 +46,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
             res.status(403).json({ message: 'Token is missing' });
         }
 
-        if (!token) {
-             res.status(403).json({ message: 'Token is missing' });
-        }
+       
 
         jwt.verify(token as string, process.env.JWT_SECRET as string, async (err: jwt.VerifyErrors | null, decodedToken) => { // Decode the token
             if (err) {

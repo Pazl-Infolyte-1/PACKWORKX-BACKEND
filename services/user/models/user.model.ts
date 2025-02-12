@@ -12,7 +12,7 @@ import {
 import { Company } from "../../company/models/company.model"; // Ensure this file exists
 import { ApiLog } from "./apilogs.model";
 
-@Entity({ name: "Users" })
+@Entity({ name: "users" })
 export class User {
   validatePassword(password: any) {
       throw new Error("Method not implemented.");
