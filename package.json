@@ -1,5 +1,5 @@
 {
-  "name": "tickets",
+  "name": "packworkx-backend",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -8,10 +8,7 @@
     "company": "nodemon --exec ts-node services/company/app.ts",
     "user": "nodemon --exec ts-node services/user/app.ts",
     "doc": "nodemon --exec ts-node services/docs/app.ts",
-    "postinstall": "npm run build",
-    "start:company": "node dist/services/company/server.js",
-    "start:user": "node dist/services/user/server.js",
-    "start:all": "concurrently \"npm run start:company\" \"npm run start:user\""
+    "module": "nodemon --exec ts-node services/module/app.ts"
   },
   "keywords": [],
   "author": "",
