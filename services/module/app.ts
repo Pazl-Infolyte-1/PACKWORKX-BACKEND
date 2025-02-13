@@ -2,12 +2,13 @@
 import express from "express";
 import cors from "cors"; // Corrected import statement for cors
 import { AppDataSource } from "../../config/data-source";
-import companyRoutes from "./routes/company.routes";
+import moduleRoutes from "./routes/module.routes";
 import * as dotenv from 'dotenv';
 import { authenticateToken } from "../../config/authmiddleware";
 const app = express();
-const PORT = 3001;
-const serviceName = 'Company'
+const PORT = 3003;
+const serviceName = 'Module'
+app.use(cors());
 app.use(express.json());
 dotenv.config();
 const allowedOrigins = [
@@ -35,7 +36,7 @@ AppDataSource.initialize()
   })
   .catch((error) => console.log(`Error during ${serviceName} Data Source initialization:`, error));
 app.use(authenticateToken as express.RequestHandler);
-app.use(`/${process.env.FOLDER_NAME}`, companyRoutes);
+app.use(`/${process.env.FOLDER_NAME}`, moduleRoutes);
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`${serviceName} Service running on port ${PORT}`);
 });

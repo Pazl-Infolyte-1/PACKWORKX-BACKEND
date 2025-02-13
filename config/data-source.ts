@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
 import { Company } from '../services/company/models/company.model'; 
 import { User } from '../services/user/models/user.model';
+import { Module } from '../services/module/models/module.model';
 import { ApiLog } from '../services/user/models/apilogs.model'; // Import your entities explicitly
 
 dotenv.config();
@@ -18,7 +19,9 @@ export const AppDataSource = new DataSource({
     entities: [
         Company,
         User,
-        ApiLog
+        ApiLog,
+        Module,
+
     ],
     // synchronize: true,  // Avoid in production; helpful for dev environments
     logging: false,

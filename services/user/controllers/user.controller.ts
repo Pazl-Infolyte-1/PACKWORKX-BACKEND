@@ -1,4 +1,13 @@
 import { Request, Response, NextFunction } from "express";
+
+interface CustomRequest extends Request {
+    user?: {
+        id: number;
+        company?: {
+            name: string;
+        };
+    };
+}
 import { AppDataSource } from '../../../config/data-source'; // Adjust path as necessary
 import { User } from '../models/user.model'; // Adjust path as necessary
 import { Company } from "../../company/models/company.model"; // Import your Company entity
@@ -8,93 +17,6 @@ import jwt from "jsonwebtoken";
 import { CONNREFUSED } from "dns";
 
 
-/**
- * @swagger
- * /api/user/login:
- *   post:
- *     summary: Login user and generate a JWT token
- *     description: This endpoint authenticates a user and generates a JWT token for authorized access.
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - userName
- *               - password
- *             properties:
- *               userName:
- *                 type: string
- *                 description: The user's email address.
- *                 example: user@example.com
- *               password:
- *                 type: string
- *                 description: The user's password.
- *                 example: Password123
- *     responses:
- *       200:
- *         description: Login successful, JWT token generated
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Login successful
- *                 data:
- *                   type: object
- *                   properties:
- *                     token:
- *                       type: string
- *                       description: JWT token generated for the authenticated user
- *                       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjEyMzQ1NjA1fQ.E0xWyR9TRzyyz1pL9bgpWQ"
- *       400:
- *         description: Invalid credentials or validation error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Invalid credentials
- *                 data:
- *                   type: array
- *                   items:
- *                     type: string
- *                   example: []
- *       500:
- *         description: Internal Server Error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Internal Server Error
- *                 error:
- *                   type: string
- *                   example: Some error message
- *                 filePath:
- *                   type: string
- *                   example: /path/to/file.ts
- *                 lineNumber:
- *                   type: string
- *                   example: "line 42"
- */
 export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const UserSchema = Joi.object({
@@ -139,6 +61,22 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
             });
             return;
         }
+        if(foundUser.status === 'inactive') {
+            res.status(400).json({
+                status: false,
+                message: 'Your account is inactive',
+                data: [],
+            });
+            return;
+        }
+        if(foundUser.login === 'disable') {
+            res.status(400).json({
+                status: false,
+                message: 'Your account is disabled',
+                data: [],
+            });
+            return;
+        }
         const token = jwt.sign(
             { id: foundUser.id},
             process.env.JWT_SECRET as string,
@@ -162,150 +100,6 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
     }
 
 }
-
-/**
- * @swagger
- * tags:
- *   - name: Users
- *     description: API for managing users
- */
-
-/**
- * @swagger
- * /api/user/register:
- *   post:
- *     summary: Create a new user
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - email
- *               - password
- *               - company_id
- *             properties:
- *               name:
- *                 type: string
- *                 minLength: 2
- *                 maxLength: 255
- *                 example: "John Doe"
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "john.doe@example.com"
- *               password:
- *                 type: string
- *                 minLength: 6
- *                 maxLength: 128
- *                 example: "password123"
- *               company_id:
- *                 type: integer
- *                 example: 1
- *     responses:
- *       201:
- *         description: User registered successfully
- *       400:
- *         description: Validation error or email already exists
- *       500:
- *         description: Internal server error
- */
-
-/**
- * @swagger
- * /api/user/{id}:
- *   get:
- *     summary: Get user by ID
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         example: 1
- *     responses:
- *       200:
- *         description: User fetched successfully
- *       404:
- *         description: User not found
- *       500:
- *         description: Internal server error
- */
-
-/**
- * @swagger
- * /api/user:
- *   get:
- *     summary: Get all users
- *     tags: [Users]
- *     responses:
- *       200:
- *         description: Users fetched successfully
- *       500:
- *         description: Internal server error
- */
-
-/**
- * @swagger
- * /api/user/{id}:
- *   put:
- *     summary: Update user by ID
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         example: 1
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 example: "Updated Name"
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "updated@example.com"
- *     responses:
- *       200:
- *         description: User updated successfully
- *       404:
- *         description: User not found
- *       500:
- *         description: Internal server error
- */
-
-/**
- * @swagger
- * /api/user/{id}:
- *   delete:
- *     summary: Delete user by ID
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         example: 1
- *     responses:
- *       200:
- *         description: User deactivated successfully
- *       404:
- *         description: User not found
- *       500:
- *         description: Internal server error
- */
 
 export const user = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -389,13 +183,13 @@ export const user = async (req: Request, res: Response, next: NextFunction): Pro
             case 'GET': {
                 if (req.params.id) {
                     // Fetch a single User by ID
-                    if (req.user) {
-                        console.log(req.user.id);
+                    if ((req as CustomRequest).user) {
+                        console.log((req as CustomRequest).user?.id);
                     } else {
                         console.log('User is undefined');
                     }
-                    if (req.user?.company) {
-                        console.log(req.user.company.name);
+                    if ((req as CustomRequest).user?.company) {
+                        console.log((req as CustomRequest).user?.company?.name);
                     } else {
                         console.log('company is undefined');
                     }

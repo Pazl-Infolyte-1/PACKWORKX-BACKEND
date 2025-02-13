@@ -1,27 +1,35 @@
 module.exports = {
     apps: [
         {
-            name: "company-service",
-            script: "dist/services/company/app.js",
-            watch: true, // Restart on file changes
+            name: "api-doc-service",
+            script: "dist/services/docs/app.js",
+            watch: false,
             env: {
                 PORT: 3000, // Ensure correct port
             },
         },
         {
-            name: "user-service",
-            script: "dist/services/user/app.js",
-            watch: true,
+            name: "company-service",
+            script: "dist/services/company/app.js",
+            watch: false, // Restart on file changes
             env: {
                 PORT: 3001, // Ensure correct port
             },
         },
         {
-            name: "api-docd-service",
-            script: "dist/services/docs/app.js",
-            watch: true,
+            name: "user-service",
+            script: "dist/services/user/app.js",
+            watch: false,
             env: {
                 PORT: 3002, // Ensure correct port
+            },
+        },
+        {
+            name: "module-service",
+            script: "dist/services/module/app.js",
+            watch: false,
+            env: {
+                PORT: 3003, // Ensure correct port
             },
         },
     ],

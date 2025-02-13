@@ -1,37 +1,35 @@
+
 import express from "express";
 import cors from "cors"; // Corrected import statement for cors
-import { AppDataSource } from "../../config/data-source";
-import userroutes from "./routes/user.routes";
-import * as dotenv from 'dotenv';
-import { authenticateToken } from "../../config/authmiddleware";
-// import { User } from '../../services/user/controllers/user.controller'; // Import your entities explicitly
 import swaggerUi from 'swagger-ui-express';
 import path from 'path';
 import swaggerJSDoc, { Options } from 'swagger-jsdoc'; // Corrected import statement for authenticateToken
+import * as dotenv from 'dotenv';
 const app = express();
-const PORT = 3002;
-app.use(cors());
+const PORT = 3000;
+const serviceName = 'docs'
 app.use(express.json());
 dotenv.config();
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://packworkx.pazl.info"
+];
 app.use(
   cors({
-    origin: process.env.BASE_URL,
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true); // Allow request
+      } else {
+        callback(new Error("Not allowed by CORS")); // Block request
+      }
+    },
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true
   })
 );
 // Initialize TypeORM connection
-AppDataSource.initialize()
-  .then(() => {
-    console.log("User : Data Source has been initialized!");
-  })
-  .catch((error) => console.log("Error during User Data Source initialization:", error));
+console.log(`${serviceName} : working!`);
 
-// Use routes
-
-app.use(authenticateToken);
-// app.use(`/${process.env.FOLDER_NAME}`, userroutes);
 const swaggerOptions: Options = {
   swaggerDefinition: {
     openapi: '3.0.0',
@@ -75,7 +73,7 @@ const swaggerOptions: Options = {
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
 
 // Serve Swagger UI
-const swaggerPath=express.static(path.join(__dirname, '../../public/swagger-custom.js'));
+const swaggerPath = express.static(path.join(__dirname, '../../public/swagger-custom.js'));
 app.use(
   `/${process.env.FOLDER_NAME}/docs`,
   swaggerUi.serve,
@@ -88,13 +86,6 @@ app.use(
 
 // Serve the custom JavaScript file
 app.use('/swagger-custom.js', express.static(path.join(__dirname, '../../public/swagger-custom.js')));
-
-// const PORT = 3001;
-// app.listen(PORT, () => {
-//   console.log(`User Service running on port ${PORT}`);
-//   // console.log(path.join(__dirname, '../../public/swagger-custom.js'))
-// });
-app.listen(PORT, '0.0.0.0',() => {
-  console.log(`User Service running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`${serviceName} Service running on port ${PORT}`);
 });
-

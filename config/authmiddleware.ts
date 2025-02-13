@@ -1,76 +1,67 @@
-import { Request, Response, NextFunction } from 'express'; // Import express types
+import { Request, Response, NextFunction } from 'express';
 
-// Extend the Request interface to include the user property
-declare module 'express-serve-static-core' {
-    interface Request {
-        user?: User;
-    }
+interface CustomRequest extends Request {
+    user?: any;
 }
-import jwt, { JwtPayload } from 'jsonwebtoken'; // Import jsonwebtoken with types
-import dotenv from 'dotenv';  // Use `require('dotenv').config()` for CommonJS syntax
-import { AppDataSource } from '../config/data-source'; // Adjust path as necessary
-import { User } from '../services/user/models/user.model';  // Import the User model (ensure path is correct)
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import dotenv from 'dotenv';
+import { AppDataSource } from '../config/data-source';
+import { User } from '../services/user/models/user.model';
 
-dotenv.config();
-const SECRET_KEY = process.env.JWT_SECRET_KEY as string;  // Ensure SECRET_KEY is treated as a string
-
-// Define Payload interface if necessary, depending on what data is in the token
-interface Payload {
-    userId: number;
-    email: string;
-    // Add any other properties in the payload
-}
-
-// Generate JWT token
-export const generateToken = (payload: Payload): string => {
-    return jwt.sign(payload, SECRET_KEY, { algorithm: 'HS256' });
-};
+// export const authenticateToken = async (req: CustomRequest, res: Response, next: NextFunction) => {
+const SECRET_KEY = process.env.JWT_SECRET_KEY as string;
 
 // Authenticate Token Middleware
-export const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
-    console.log("Image Path in authenticateToken:" + req.path);
+export const authenticateToken = async (req: CustomRequest, res: Response, next: NextFunction) => {
     console.log('Request Path:', req.path);
 
     const protectedPaths: string[] = [
         `/${process.env.FOLDER_NAME}/company`,
         `/${process.env.FOLDER_NAME}/user/register`,
         `/${process.env.FOLDER_NAME}/user/login`,
-        `/${process.env.FOLDER_NAME}/company/`,
+        `/${process.env.FOLDER_NAME}/module`
     ];
 
-    // If the requested path is not protected, skip token validation
-    if (!protectedPaths.includes(req.path) && !req.path.startsWith(`/${process.env.FOLDER_NAME}/docs`)) {
-        const token = req.header('Authorization')?.split(' ')[1]; // Get the token from header
-        
+    // Skip authentication for unprotected routes like `/docs`
+    if (req.path.startsWith(`/${process.env.FOLDER_NAME}/docs`)) {
+        return next();
+    }
+
+    // Check if the request path starts with any protected path (handles dynamic IDs)
+    if (!protectedPaths.some(path => req.path.startsWith(path))) {
+        const token = req.header('Authorization')?.split(' ')[1]; 
+
         if (!token) {
-            res.status(403).json({ message: 'Token is missing' });
+            return res.status(403).json({ message: 'Token is missing' });
         }
 
-       
-
-        jwt.verify(token as string, process.env.JWT_SECRET as string, async (err: jwt.VerifyErrors | null, decodedToken) => { // Decode the token
-            if (err) {
-                if (err.name === 'TokenExpiredError') {
-                    return res.status(401).json({ message: 'Token has expired' });
-                } else {
-                    return res.status(403).json({ message: 'Invalid token' });
-                }
-            }
-
-            const decoded = decodedToken as JwtPayload;
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY) as JwtPayload;
             const userRepository = AppDataSource.getRepository(User);
-            const userDetails = await userRepository.findOne({ 
-                where: { id: decoded.userId }, 
-                relations: ['company']  // Ensure 'company' is loaded
+            const userDetails = await userRepository.findOne({
+                where: { id: decoded.userId },
+                relations: ['company']
             });
+
             if (!userDetails) {
                 return res.status(404).json({ message: 'User not found' });
             }
 
-            req.user = userDetails; // Attach the user object (decoded token) to the request
+            req.user = userDetails;
 
-            next(); // Continue to the next middleware or route handler
-        });
+            // Allow Super Admins to bypass company validation
+            if (userDetails.role === 'super_admin') {
+                return next();
+            }
+
+            if (!userDetails.company) {
+                return res.status(403).json({ message: 'Unauthorized: No associated company' });
+            }
+
+            next();
+        } catch (err: any) {
+            return res.status(err.name === 'TokenExpiredError' ? 401 : 403).json({ message: err.message });
+        }
     } else {
         next();
     }

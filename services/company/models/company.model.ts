@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, Unique, CreateDateColumn, UpdateDateColumn, OneToMany,JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Unique, CreateDateColumn, UpdateDateColumn, OneToMany, JoinColumn } from 'typeorm';
 import { User } from '../../user/models/user.model'; // Adjust the path as necessary
+import { Module } from '../../module/models/module.model'; // Adjust the path as necessary
 
 enum CompanyStatus {
     ACTIVE = 'active',
@@ -23,6 +24,9 @@ export class Company {
     // One-to-many relation with User
     @OneToMany(() => User, (user) => user.company)
     users!: User[];
+
+    @OneToMany(() => Module, (module) => module.company)
+    modules!: Module[];
 
     @Column({ type: 'varchar', length: 255, nullable: false, comment: 'Company email' })
     email!: string;

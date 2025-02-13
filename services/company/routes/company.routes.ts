@@ -4,12 +4,7 @@ import { company } from "../controllers/company.controller"; // Ensure correct i
 
 const router = Router();
 
-router.route('/company')
-    .post(company)
-    .get(company);
-router.route('/company/:id')
-    .put(company)
-    .get(company)
-    .delete(company);
+router.route('/company').post(company).get(company);
+router.route('/company/:id').put(company).get(company).delete(company);
 
 export default router;
