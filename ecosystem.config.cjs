@@ -35,7 +35,7 @@ module.exports = {
         ,
         {
             name: "role-based-access-control-service",
-            script: "dist/role-based-access-control/app.js",
+            script: "dist/services/role-based-access-control/app.js",
             watch: false,
             env: {
                 PORT: 3004, // Ensure correct port

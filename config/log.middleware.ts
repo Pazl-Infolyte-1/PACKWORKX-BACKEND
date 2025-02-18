@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppDataSource } from '../config/data-source'; // TypeORM Data Source
-import { ApiLog } from '../services/user/models/apiApiLogs.model';
-import emailQueue from './emailQueue';
+import { ApiLog } from '../services/user/models/apilogs.model';
+import { sendEmail } from './emailQueue';
 
 export const ApiLogRequestResponse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { method, url, body, headers, user } = req as any; // Assuming `user` is added to `req`
@@ -33,27 +33,29 @@ export const ApiLogRequestResponse = async (req: Request, res: Response, next: N
 
     const originalSend = res.send;
 
-    res.send = async function (this: Response, data: any): Promise<void> {
-        const duration: number = Date.now() - startTime;
+    res.send = function (this: Response, data: any): Response<any, Record<string, any>> {
+        (async () => {
+            const duration: number = Date.now() - startTime;
 
-        try {
-            if (ApiLogEntry) {
-                ApiLogEntry.statusCode = res.statusCode;
-                ApiLogEntry.responseBody = data.toString();
-                ApiLogEntry.duration = duration;
-                await ApiLogRepository.save(ApiLogEntry);
-            }
+            try {
+                if (ApiLogEntry) {
+                    ApiLogEntry.statusCode = res.statusCode;
+                    ApiLogEntry.responseBody = data.toString();
+                    ApiLogEntry.duration = duration;
+                    await ApiLogRepository.save(ApiLogEntry);
+                }
 
-            if (res.statusCode === 500) {
-                await emailQueue.add({
-                    to: 'ananda.s@pazl.info',
-                    subject: 'Buzz Application Error Notification',
-                    text: `An error occurred in the application:\n\nUser: ${userId}\nMethod: ${method}\nURL: ${url}\nResponse: ${data}`,
-                });
+                if (res.statusCode === 500) {
+                    await sendEmail({
+                        to: 'ananda.s@pazl.info',
+                        subject: 'Pack Works Application Error Notification',
+                        text: `An error occurred in the application:\n\nUser: ${userId}\nMethod: ${method}\nURL: ${url}\nResponse: ${data}`,
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to update response ApiLog:', error);
             }
-        } catch (error) {
-            console.error('Failed to update response ApiLog:', error);
-        }
+        })();
 
         return originalSend.apply(this, arguments as any);
     };
@@ -71,9 +73,9 @@ export const ApiLogRequestResponse = async (req: Request, res: Response, next: N
                     await ApiLogRepository.save(ApiLogEntry);
                 }
 
-                await emailQueue.add({
+                await sendEmail({
                     to: 'ananda.s@pazl.info',
-                    subject: 'Buzz Application Error Notification',
+                    subject: 'Pack works Application Error Notification',
                     text: `An error occurred in the application:\n\nUser: ${userId}\nMethod: ${method}\nURL: ${url}\nError: ${errorMessage}\nStack Trace:\n${stackTrace}`,
                 });
             } catch (error) {

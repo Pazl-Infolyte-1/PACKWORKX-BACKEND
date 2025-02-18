@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-
+import { User } from '../models/user.model'; // Adjust path as necessary
 interface CustomRequest extends Request {
     user?: {
         id: number;
@@ -9,7 +9,7 @@ interface CustomRequest extends Request {
     };
 }
 import { AppDataSource } from '../../../config/data-source'; // Adjust path as necessary
-import { User } from '../models/user.model'; // Adjust path as necessary
+// import { User } from '../models/user.model'; // Adjust path as necessary
 import { Company } from "../../company/models/company.model"; // Import your Company entity
 import Joi from "joi";
 import bcrypt from "bcrypt";
