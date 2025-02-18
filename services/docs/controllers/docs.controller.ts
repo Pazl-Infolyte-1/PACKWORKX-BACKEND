@@ -807,22 +807,19 @@
 
 /**
  * @swagger
- * /api/module-groups/{id}:
+ * /api/rbac:
  *   get:
- *     summary: Get Module Group by ID
- *     description: Retrieve the module group and its associated modules and sub-modules by the given ID.
+ *     summary: Retrieve Role-Based Access Control Data
+ *     description: >
+ *       Returns RBAC data for the authenticated user based on their user ID and associated company.
+ *       The data is structured into groups with nested modules and sub-modules.
  *     tags:
- *       - Module Groups
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: Numeric ID of the module group to retrieve.
- *         schema:
- *           type: integer
+ *       - RBAC
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Successfully retrieved module group.
+ *         description: Successfully retrieved RBAC data.
  *         content:
  *           application/json:
  *             schema:
@@ -833,48 +830,83 @@
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: "Module group fetched successfully"
+ *                   example: "Role-Based Access Control Data"
  *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                       example: 1
- *                     groupName:
- *                       type: string
- *                       example: "HRMS"
- *                     modules:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           moduleName:
- *                             type: string
- *                             example: "Employee"
- *                           moduleKey:
- *                             type: string
- *                             example: "dmlld19lbXBsb3llZQ=="
- *                           moduleIconName:
- *                             type: string
- *                             example: "cilHome"
- *                           subModules:
- *                             type: array
- *                             items:
- *                               type: object
- *                               properties:
- *                                 subModuleName:
- *                                   type: string
- *                                   example: "Add Employee"
- *                                 subModuleKey:
- *                                   type: string
- *                                   example: "YWRkX2VtcGxveWVl"
- *                                 subModuleIconName:
- *                                   type: string
- *                                   example: "cilSettings"
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       groupName:
+ *                         type: string
+ *                         example: "HRMS"
+ *                       modules:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             moduleName:
+ *                               type: string
+ *                               example: "Employee"
+ *                             moduleKey:
+ *                               type: string
+ *                               example: "dmlld19lbXBsb3llZQ=="
+ *                             moduleIconName:
+ *                               type: string
+ *                               example: "cilHome"
+ *                             subModules:
+ *                               type: array
+ *                               items:
+ *                                 type: object
+ *                                 properties:
+ *                                   subModuleName:
+ *                                     type: string
+ *                                     example: "Add Employee"
+ *                                   subModuleKey:
+ *                                     type: string
+ *                                     example: "YWRkX2VtcGxveWVl"
+ *                                   subModuleIconName:
+ *                                     type: string
+ *                                     example: "cilSettings"
  *       400:
- *         description: Bad Request, e.g. missing or invalid parameter.
+ *         description: Bad Request - Missing User ID or Company ID.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "User ID or Company ID is missing"
  *       404:
- *         description: Module group not found.
+ *         description: User not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "User not found"
  *       500:
  *         description: Internal Server Error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ *                 error:
+ *                   type: string
+ *                   example: "Error message details"
  */
