@@ -1,42 +1,37 @@
-
-import { Company } from "../../company/models/company.model"; // Ensure this file exists
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from "typeorm";
-
-@Entity("modules")
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn,OneToMany } from 'typeorm';
+import { Company } from '../../company/models/company.model'; // Adjust path as necessary
+import { ModuleGroup } from '../models/module_group.model'; // Adjust path as necessary
+import { ModuleIcon } from '../models/module_icon.model'; // Adjust path as necessary
+import { SubModule } from './sub_module.model'; // Ensure this path is correct
+@Entity({ name: 'modules' })
 export class Module {
   @PrimaryGeneratedColumn()
-  id: number | undefined;
+  id!: number;
 
-  @Column({ type: "varchar", length: 191, nullable: false })
-  module_name: string | undefined;
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  module_name!: string;
 
-  @Column({ type: "varchar", length: 191, nullable: true })
-  description?: string;
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  description!: string;
 
-  @Column({ type: "varchar", length: 191, nullable: true })
-  icon?: string;
+  @ManyToOne(() => ModuleIcon, { nullable: true })
+  @JoinColumn({ name: 'module_icon_id' })
+  module_icon?: ModuleIcon;
 
-  @Column({ type: "varchar", length: 191, nullable: true })
-  route?: string;
+  @OneToMany(() => Module, (module) => module.module_group)
+  modules: Module[] | undefined;
 
-  @Column({ type: "int", nullable: true })
-  parent_id?: number;
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  key!: string;
 
-  @ManyToOne(() => Company, (company) => company.modules, { onDelete: "RESTRICT", onUpdate: "RESTRICT", nullable: true })
-  @JoinColumn({ name: "company_id" })
+  @ManyToOne(() => Company, { nullable: true })
+  @JoinColumn({ name: 'company_id' })
   company?: Company;
+  
+  @OneToMany(() => SubModule, (subModule) => subModule.module)
+  sub_modules?: SubModule[];
 
-  @CreateDateColumn({ type: "timestamp", nullable: true })
-  created_at: Date | undefined;
-
-  @UpdateDateColumn({ type: "timestamp", nullable: true })
-  updated_at: Date | undefined;
+  @Column({ type: "enum", enum: ["active", "inactive"], default: "active" })
+  status!: "active" | "inactive";
+  module_group: any;
 }

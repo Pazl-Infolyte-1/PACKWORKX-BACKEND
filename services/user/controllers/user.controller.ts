@@ -43,7 +43,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
             return;
         }
         const UserRepository = AppDataSource.getRepository(User);
-        const foundUser = await UserRepository.findOneBy({ email: req.body.email });
+        const foundUser = await UserRepository.findOneBy({ email: req.body.userName });
         if (!foundUser) {
             res.status(400).json({
                 status: false,
@@ -61,7 +61,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
             });
             return;
         }
-        if(foundUser.status === 'inactive') {
+        if (foundUser.status === 'inactive') {
             res.status(400).json({
                 status: false,
                 message: 'Your account is inactive',
@@ -69,7 +69,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
             });
             return;
         }
-        if(foundUser.login === 'disable') {
+        if (foundUser.login === 'disable') {
             res.status(400).json({
                 status: false,
                 message: 'Your account is disabled',
@@ -78,9 +78,9 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
             return;
         }
         const token = jwt.sign(
-            { id: foundUser.id},
-            process.env.JWT_SECRET as string,
-            { expiresIn: "1h" }
+            { id: foundUser.id },
+            process.env.JWT_SECRET_KEY as string,
+            { expiresIn: "10d" }
         );
         res.status(200).json({
             status: true,
@@ -277,3 +277,5 @@ export const user = async (req: Request, res: Response, next: NextFunction): Pro
         next(error);
     }
 };
+
+

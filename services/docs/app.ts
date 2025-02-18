@@ -64,7 +64,7 @@ const swaggerOptions: Options = {
     ],
   },
   apis: [
-    path.join(__dirname, './controllers', '*.js')  // Converts to absolute path
+    path.join(__dirname, "./controllers", "*.{js,ts}")  // Converts to absolute path
 
   ],
 };

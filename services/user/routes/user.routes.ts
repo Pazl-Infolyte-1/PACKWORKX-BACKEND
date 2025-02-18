@@ -5,6 +5,7 @@ import { user, login } from "../controllers/user.controller"; // Ensure correct 
 const router = Router();
 
 router.route('/user/register').post(user);
+// router.route('/refresh-token').post(refreshToken);
 router.route('/user/login').post(login);
 router.route('/user').get(user);
 router.route('/user/:id').put(user).get(user).delete(user);

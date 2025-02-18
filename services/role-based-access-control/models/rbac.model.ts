@@ -10,7 +10,7 @@ import {
   OneToMany,
 } from "typeorm";
 import { Company } from "../../company/models/company.model"; // Ensure this file exists
-import { ApiLog } from "./apilogs.model";
+// import { ApiLog } from "./apilogs.model";
 
 @Entity({ name: "users" })
 export class User {
@@ -90,6 +90,5 @@ export class User {
   @JoinColumn({ name: 'company_id' }) // This defines the foreign key column in the User table
   company!: Company;
 
-  @OneToMany(() => ApiLog, (apiLog: ApiLog) => apiLog.user)
-  apiLogs!: ApiLog[];
+
 }

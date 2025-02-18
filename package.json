@@ -8,7 +8,8 @@
     "company": "nodemon --exec ts-node services/company/app.ts",
     "user": "nodemon --exec ts-node services/user/app.ts",
     "doc": "nodemon --exec ts-node services/docs/app.ts",
-    "module": "nodemon --exec ts-node services/module/app.ts"
+    "module": "nodemon --exec ts-node services/module/app.ts",
+    "rbac": "nodemon --exec ts-node services/role-based-access-control/app.ts"
   },
   "keywords": [],
   "author": "",

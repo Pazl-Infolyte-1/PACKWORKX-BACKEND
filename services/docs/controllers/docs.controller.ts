@@ -444,6 +444,29 @@
              *       200:
              *         description: List of modules retrieved successfully
              */
+/**
+ * @swagger
+ * /api/module/{id}:
+ *   get:
+ *     summary: Get Module by ID
+ *     tags: [Modules]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Module fetched successfully
+ *       404:
+ *         description: Module not found
+ *       500:
+ *         description: Internal server error
+ */
+
+
              /**
              * @swagger
              * /api/modules/{id}:
@@ -499,3 +522,285 @@
              *       404:
              *         description: Module not found
              */
+
+
+             /**
+ * @swagger
+ * tags:
+ *   name: SubModules
+ *   description: API for managing sub-modules
+ */
+
+/**
+ * @swagger
+ * /api/submodules:
+ *   post:
+ *     summary: Create a new sub-module
+ *     tags: [SubModules]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [subModuleName, description, icon, companyId]
+ *             properties:
+ *               subModuleName:
+ *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 255
+ *                 example: "User Management"
+ *               description:
+ *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 255
+ *                 example: "Manages user roles"
+ *               icon:
+ *                 type: string
+ *                 example: "user-icon.png"
+ *               module_id:
+ *                 type: integer
+ *                 nullable: true
+ *                 example: 1
+ *               is_custom:
+ *                 type: boolean
+ *                 nullable: true
+ *               companyId:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       201:
+ *         description: SubModule created successfully
+ *       400:
+ *         description: Validation failed or Sub Module Name already exists
+ */
+
+/**
+ * @swagger
+ * /api/submodules:
+ *   get:
+ *     summary: Get all sub-modules
+ *     tags: [SubModules]
+ *     responses:
+ *       200:
+ *         description: List of sub-modules
+ *       500:
+ *         description: Internal server error
+ */
+
+/**
+ * @swagger
+ * /api/submodules/{id}:
+ *   get:
+ *     summary: Get a single sub-module by ID
+ *     tags: [SubModules]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: SubModule details
+ *       404:
+ *         description: SubModule not found
+ */
+
+/**
+ * @swagger
+ * /api/submodules/{id}:
+ *   put:
+ *     summary: Update a sub-module
+ *     tags: [SubModules]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               subModuleName:
+ *                 type: string
+ *                 example: "Updated Name"
+ *               description:
+ *                 type: string
+ *                 example: "Updated description"
+ *               icon:
+ *                 type: string
+ *                 example: "updated-icon.png"
+ *               module_id:
+ *                 type: integer
+ *                 example: 1
+ *               is_custom:
+ *                 type: boolean
+ *               companyId:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: SubModule updated successfully
+ *       404:
+ *         description: SubModule not found
+ */
+
+/**
+ * @swagger
+ * /api/api/submodules/{id}:
+ *   delete:
+ *     summary: Delete a sub-module
+ *     tags: [SubModules]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: SubModule deleted successfully
+ *       404:
+ *         description: SubModule not found
+ */
+/**
+ * @swagger
+ * tags:
+ *   name: Module Groups
+ *   description: API for managing module groups
+ */
+
+/**
+ * @swagger
+ * /api/module-groups:
+ *   post:
+ *     summary: Create a new Module Group
+ *     tags: [Module Groups]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ModuleGroup'
+ *     responses:
+ *       201:
+ *         description: Module Group created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/ModuleGroup'
+ *       400:
+ *         description: Validation error or duplicate module group name
+ *       500:
+ *         description: Internal Server Error
+ */
+
+/**
+ * @swagger
+ * /api/module-groups:
+ *   get:
+ *     summary: Get all Module Groups
+ *     tags: [Module Groups]
+ *     responses:
+ *       200:
+ *         description: List of all module groups
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/ModuleGroup'
+ *       500:
+ *         description: Internal Server Error
+ */
+
+/**
+ * @swagger
+ * /api/module-groups/{id}:
+ *   get:
+ *     summary: Get a single Module Group by ID
+ *     tags: [Module Groups]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the module group
+ *     responses:
+ *       200:
+ *         description: Module Group fetched successfully
+ *       404:
+ *         description: Module Group not found
+ *       500:
+ *         description: Internal Server Error
+ */
+
+/**
+ * @swagger
+ * /api/module-groups/{id}:
+ *   put:
+ *     summary: Update a Module Group by ID
+ *     tags: [Module Groups]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the module group
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ModuleGroup'
+ *     responses:
+ *       200:
+ *         description: Module Group updated successfully
+ *       404:
+ *         description: Module Group not found
+ *       500:
+ *         description: Internal Server Error
+ */
+
+/**
+ * @swagger
+ * /api/module-groups/{id}:
+ *   delete:
+ *     summary: Delete a Module Group by ID
+ *     tags: [Module Groups]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the module group
+ *     responses:
+ *       200:
+ *         description: Module Group deleted successfully
+ *       404:
+ *         description: Module Group not found
+ *       500:
+ *         description: Internal Server Error
+ */
