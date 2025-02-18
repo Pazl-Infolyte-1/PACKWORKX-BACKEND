@@ -44,29 +44,38 @@ export const rbac = async (req: Request, res: Response, next: NextFunction): Pro
         console.log(result)
         const rawData = result[0] || [];
         const groupedData = rawData.reduce((acc: any[], row: any) => {
-            let group = acc.find((g) => g.group_name === row.group_name);
+            // Find the group by group_name
+            let group = acc.find((g) => g.groupName === row.group_name);
             if (!group) {
                 group = { groupName: row.group_name, modules: [] };
                 acc.push(group);
             }
-
-            let module = group.modules.find((m: { module_name: any; }) => m.module_name === row.module_name);
+        
+            // Find the module within the group
+            let module = group.modules.find((m: { moduleName: string }) => m.moduleName === row.module_name);
             if (!module) {
                 module = {
                     moduleName: row.module_name,
                     moduleKey: Buffer.from(row.module_key).toString("base64"),
-                    moduleIcon_name: row.module_icon_name,
+                    moduleIconName: row.module_icon_name,
                     subModules: []
                 };
                 group.modules.push(module);
             }
-
-            module.subModules.push({
-                subModuleName: row.sub_module_name,
-                subModuleKey: Buffer.from(row.sub_module_key).toString("base64"),
-                subModuleIconName: row.sub_module_icon_name
-            });
-
+        
+            // Check if sub-module already exists (to prevent duplicates)
+            const existingSubModule = module.subModules.find(
+                (s: { subModuleKey: string }) => s.subModuleKey === Buffer.from(row.sub_module_key).toString("base64")
+            );
+        
+            if (!existingSubModule) {
+                module.subModules.push({
+                    subModuleName: row.sub_module_name,
+                    subModuleKey: Buffer.from(row.sub_module_key).toString("base64"),
+                    subModuleIconName: row.sub_module_icon_name
+                });
+            }
+        
             return acc;
         }, []);
         res.status(200).json({
