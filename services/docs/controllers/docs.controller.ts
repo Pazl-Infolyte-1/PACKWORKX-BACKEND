@@ -804,3 +804,77 @@
  *       500:
  *         description: Internal Server Error
  */
+
+/**
+ * @swagger
+ * /api/module-groups/{id}:
+ *   get:
+ *     summary: Get Module Group by ID
+ *     description: Retrieve the module group and its associated modules and sub-modules by the given ID.
+ *     tags:
+ *       - Module Groups
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric ID of the module group to retrieve.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved module group.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Module group fetched successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     groupName:
+ *                       type: string
+ *                       example: "HRMS"
+ *                     modules:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           moduleName:
+ *                             type: string
+ *                             example: "Employee"
+ *                           moduleKey:
+ *                             type: string
+ *                             example: "dmlld19lbXBsb3llZQ=="
+ *                           moduleIconName:
+ *                             type: string
+ *                             example: "cilHome"
+ *                           subModules:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 subModuleName:
+ *                                   type: string
+ *                                   example: "Add Employee"
+ *                                 subModuleKey:
+ *                                   type: string
+ *                                   example: "YWRkX2VtcGxveWVl"
+ *                                 subModuleIconName:
+ *                                   type: string
+ *                                   example: "cilSettings"
+ *       400:
+ *         description: Bad Request, e.g. missing or invalid parameter.
+ *       404:
+ *         description: Module group not found.
+ *       500:
+ *         description: Internal Server Error.
+ */
