@@ -428,6 +428,8 @@ export const submodules = async (req: Request, res: Response, next: NextFunction
                 if (req.params.id) {
                     const subModules = await SubModuleRepository.findOne({
                         where: { id: Number(req.params.id) },
+                        relations: ["module", "module.sub_modules","module.module_icon", "module.module_group"],  // ✅ Fetch related entities
+
                     });
 
                     if (!subModules) {
