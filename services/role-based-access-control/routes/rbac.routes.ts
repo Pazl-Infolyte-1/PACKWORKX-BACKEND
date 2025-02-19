@@ -5,6 +5,6 @@ import { rbac } from "../controllers/rbac.controller"; // Ensure correct import
 const router = Router();
 
 
-router.route('/role-based-access-control').get(rbac)
+router.route('/rbac').get(rbac)
 
 export default router;
