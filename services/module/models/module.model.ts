@@ -18,8 +18,10 @@ export class Module {
   @JoinColumn({ name: 'module_icon_id' })
   module_icon?: ModuleIcon;
 
-  @OneToMany(() => Module, (module) => module.module_group)
-  modules: Module[] | undefined;
+  @ManyToOne(() => ModuleGroup, (moduleGroup) => moduleGroup.modules, { nullable: false })
+  @JoinColumn({ name: 'module_group_id' })
+  module_group!: ModuleGroup;
+  
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   key!: string;
@@ -33,5 +35,4 @@ export class Module {
 
   @Column({ type: "enum", enum: ["active", "inactive"], default: "active" })
   status!: "active" | "inactive";
-  module_group: any;
 }

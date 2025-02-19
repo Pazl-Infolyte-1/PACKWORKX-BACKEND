@@ -5,11 +5,14 @@ import { AppDataSource } from "../../config/data-source";
 import userRoutes from "./routes/user.routes";
 import * as dotenv from 'dotenv';
 import { authenticateToken } from "../../config/authmiddleware";
+import { requestEncodeResponseDecode } from "../../config/requestEncodeResponseDecode";
+import { ApiLogRequestResponse } from "../../config/log.middleware";
 const app = express();
 const PORT = 3002;
 const serviceName = 'User'
 app.use(cors());
 app.use(express.json());
+app.use(requestEncodeResponseDecode);
 dotenv.config();
 const allowedOrigins = [
   "http://localhost:3000",
@@ -36,6 +39,7 @@ AppDataSource.initialize()
   })
   .catch((error) => console.log(`Error during ${serviceName} Data Source initialization:`, error));
 app.use(authenticateToken as express.RequestHandler);
+app.use(ApiLogRequestResponse);
 app.use(`/${process.env.FOLDER_NAME}`, userRoutes);
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`${serviceName} Service running on port ${PORT}`);

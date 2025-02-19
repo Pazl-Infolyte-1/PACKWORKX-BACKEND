@@ -3,9 +3,22 @@ import { AppDataSource } from '../config/data-source'; // TypeORM Data Source
 import { ApiLog } from '../services/user/models/apilogs.model';
 import { sendEmail } from './emailQueue';
 
+interface CustomRequest extends Request {
+    user?: {
+        id: number;
+        company?: {
+            id: number;
+            name: string;
+        };
+    };
+}
+
 export const ApiLogRequestResponse = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { method, url, body, headers, user } = req as any; // Assuming `user` is added to `req`
-    const userId: number | null = user?.id || null; // Default to null if no user is found
+    const customReq = req as CustomRequest;
+    const userId: number | undefined = customReq?.user?.id;
+    console.log('User ID:', userId);
+    // const companyId: number | undefined = customReq?.user?.company?.id;
     const startTime: number = Date.now();
 
     const ApiLogRepository = AppDataSource.getRepository(ApiLog);
@@ -49,7 +62,7 @@ export const ApiLogRequestResponse = async (req: Request, res: Response, next: N
                     await sendEmail({
                         to: 'ananda.s@pazl.info',
                         subject: 'Pack Works Application Error Notification',
-                        text: `An error occurred in the application:\n\nUser: ${userId}\nMethod: ${method}\nURL: ${url}\nResponse: ${data}`,
+                        text: `An error occurred in the application:\n\nUser: ${userId}\nMethod: ${method}\nURL: ${url}\nResponse: ${data.toString()}`,
                     });
                 }
             } catch (error) {
@@ -73,11 +86,11 @@ export const ApiLogRequestResponse = async (req: Request, res: Response, next: N
                     await ApiLogRepository.save(ApiLogEntry);
                 }
 
-                await sendEmail({
-                    to: 'ananda.s@pazl.info',
-                    subject: 'Pack works Application Error Notification',
-                    text: `An error occurred in the application:\n\nUser: ${userId}\nMethod: ${method}\nURL: ${url}\nError: ${errorMessage}\nStack Trace:\n${stackTrace}`,
-                });
+                // await sendEmail({
+                //     to: 'ananda.s@pazl.info',
+                //     subject: 'Pack works Application Error Notification',
+                //     text: `An error occurred in the application:\n\nUser: ${userId}\nMethod: ${method}\nURL: ${url}\nError: ${errorMessage}\nStack Trace:\n${stackTrace}`,
+                // });
             } catch (error) {
                 console.error('Failed to update error ApiLog or enqueue email:', error);
             }
