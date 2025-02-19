@@ -12,7 +12,7 @@ const PORT = 3002;
 const serviceName = 'User'
 app.use(cors());
 app.use(express.json());
-app.use(requestEncodeResponseDecode);
+// app.use(requestEncodeResponseDecode);
 dotenv.config();
 const allowedOrigins = [
   "http://localhost:3000",
