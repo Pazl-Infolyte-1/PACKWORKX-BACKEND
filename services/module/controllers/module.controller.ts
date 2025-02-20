@@ -528,3 +528,184 @@ export const submodules = async (req: Request, res: Response, next: NextFunction
         });
     }
 };
+
+export const modulesgroup = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const SubModuleRepository = AppDataSource.getRepository(SubModule);
+
+        switch (req.method) {
+            case 'POST': {
+                const subModuleSchema = Joi.object({
+                    subModuleName: Joi.string().min(2).max(255).required().messages({
+                        "string.empty": "Sub Module name is required",
+                        "string.min": "Sub Module name must be at least 2 characters",
+                        "string.max": "Sub Module name cannot exceed 255 characters",
+                    }),
+                    description: Joi.string().min(2).max(255).required().messages({
+                        "string.empty": "Description is required",
+                        "string.min": "Description must be at least 2 characters",
+                        "string.max": "Description cannot exceed 255 characters",
+                    }),
+                    icon: Joi.string().min(2).max(255).required().messages({
+                        "string.empty": "Icon is required",
+                        "string.min": "Icon must be at least 2 characters",
+                        "string.max": "Icon cannot exceed 255 characters",
+                    }),
+                    module_id: Joi.number().integer().allow(null).optional(),
+                    is_custom: Joi.allow(null).optional(),
+                    companyId: Joi.number().integer().min(1).required().messages({
+                        "number.empty": "Company Id is required",
+                        "number.min": "Company Id must be at least 1",
+                    }),
+                });
+
+                const { error } = subModuleSchema.validate(req.body, { abortEarly: false });
+                if (error) {
+                    res.status(400).json({
+                        status: false,
+                        message: "Validation failed",
+                        errors: error.details.map((err) => err.message),
+                    });
+                    return;
+                }
+
+                const { subModuleName, description, icon, module_id, is_custom, companyId } = req.body;
+
+                const existingSubModule = await SubModuleRepository.findOne({
+                    where: {
+                        sub_module_name: subModuleName,
+                        company: { id: companyId },
+                        module: { id: module_id },
+                    },
+                });
+
+                if (existingSubModule) {
+                    res.status(400).json({
+                        status: false,
+                        message: 'Sub Module Name already exists',
+                        data: [],
+                    });
+                    return;
+                }
+
+                const newSubModule = SubModuleRepository.create({
+                    sub_module_name: subModuleName, // ✅ Ensure it exists in Module entity
+                    description,
+                    module: module_id ? ({ id: module_id } as any) : null, // ✅ Fix relation
+                    key: subModuleName.toLowerCase().replace(/\s/g, '_'),
+                    company: companyId ? ({ id: companyId } as any) : null, // ✅ Fix relation
+                });
+
+                await SubModuleRepository.save(newSubModule);
+                res.status(201).json({
+                    status: true,
+                    message: 'Sub Module created successfully',
+                    data: newSubModule,
+                });
+                break;
+            }
+
+            case 'GET': {
+                if (req.params.id) {
+                    const subModules = await SubModuleRepository.findOne({
+                        where: { id: Number(req.params.id) },
+                        relations: ["module", "module.sub_modules","module.module_icon", "module.module_group"],  // ✅ Fetch related entities
+
+                    });
+
+                    if (!subModules) {
+                        res.status(404).json({
+                            status: false,
+                            message: 'Sub Module not found',
+                            data: [],
+                        });
+                        return;
+                    }
+
+                    res.status(200).json({
+                        status: true,
+                        message: 'Sub Module fetched successfully',
+                        data: subModules,
+                    });
+                } else {
+                    const subModules = await SubModuleRepository.find({
+                        relations: ["module", "module.sub_modules","module.module_icon", "module.module_group"],  // ✅ Fetch related entities
+
+                    });
+                    res.status(200).json({
+                        status: true,
+                        message: 'sub Modules fetched successfully',
+                        data: subModules,
+                    });
+                }
+                break;
+            }
+
+            case 'PUT': {
+                const module = await SubModuleRepository.findOne({
+                    where: { id: Number(req.params.id) },
+                });
+
+                if (!module) {
+                    res.status(404).json({
+                        status: false,
+                        message: 'Sub Module not found',
+                        data: [],
+                    });
+                    return;
+                }
+
+                SubModuleRepository.merge(module, req.body);
+                await SubModuleRepository.save(module);
+
+                res.status(200).json({
+                    status: true,
+                    message: 'Sub Module updated successfully',
+                    data: module,
+                });
+                break;
+            }
+
+            case 'DELETE': {
+                const module = await SubModuleRepository.findOne({
+                    where: { id: Number(req.params.id) },
+                });
+
+                if (!module) {
+                    res.status(404).json({
+                        status: false,
+                        message: 'Sub Module not found',
+                        data: [],
+                    });
+                    return;
+                }
+
+                await SubModuleRepository.remove(module);
+                res.status(200).json({
+                    status: true,
+                    message: 'Sub Module deleted successfully',
+                    data: [],
+                });
+                break;
+            }
+
+            default:
+                res.status(405).json({
+                    status: false,
+                    message: 'Method not allowed',
+                    data: [],
+                });
+                break;
+        }
+    } catch (error) {
+        const stackTrace = (error instanceof Error && error.stack) ? error.stack.split("\n")[1].trim() : "Unknown";
+
+        res.status(500).json({
+            status: false,
+            message: "Internal Server Error",
+            error: error instanceof Error ? error.message : "Unknown error",
+            filePath: __filename, // Gets current file path
+            lineNumber: stackTrace, // Extracts line number from stack trace
+        });
+    }
+};

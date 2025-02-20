@@ -925,13 +925,7 @@
  *         required: true
  *         schema:
  *           type: string
- *         description: Base64 encoded form key to identify the submodule.
- *       - in: header
- *         name: Authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Bearer token for authentication.
+ *         description: Encoded ID of the sub-module.
  *     responses:
  *       200:
  *         description: Successfully retrieved form fields.
@@ -949,6 +943,8 @@
  *                   properties:
  *                     pageTitle:
  *                       type: string
+ *                     formId:
+ *                       type: string
  *                     sections:
  *                       type: array
  *                       items:
@@ -957,7 +953,7 @@
  *                           groupName:
  *                             type: string
  *                           groupId:
- *                             type: integer
+ *                             type: string
  *                           groupShow:
  *                             type: boolean
  *                           count:
@@ -989,13 +985,61 @@
  *                                     type: object
  *                                     properties:
  *                                       id:
- *                                         type: integer
+ *                                         type: string
  *                                       label:
  *                                         type: string
  *       400:
- *         description: User ID or Company ID is missing.
+ *         description: Bad Request - Missing required parameters.
  *       404:
- *         description: SubModule not found or no form structure available.
+ *         description: SubModule or form structure not found.
+ *       500:
+ *         description: Internal Server Error.
+ */
+
+/**
+ * @swagger
+ * /api/form-fields-submission:
+ *   post:
+ *     summary: Submit Form Data
+ *     description: Submits form data with form_id and field values.
+ *     tags:
+ *       - Form Fields
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               form_id:
+ *                 type: integer
+ *               fields:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     field_id:
+ *                       type: integer
+ *                     value:
+ *                       type: string
+ *     responses:
+ *       200:
+ *         description: Form submitted successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 submission_id:
+ *                   type: integer
+ *       400:
+ *         description: Invalid form data.
+ *       404:
+ *         description: Form ID not found.
  *       500:
  *         description: Internal Server Error.
  */
