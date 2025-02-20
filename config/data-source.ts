@@ -10,6 +10,8 @@ import { SubModule } from '../services/module/models/sub_module.model';
 import { ApiLog } from '../services/user/models/apilogs.model'; // Import your entities explicitly
 import { FormSubmission } from '../services/form_fields/models/formsubmission.model'; // Import your entities explicitly
 import { FormSubmissionValue } from '../services/form_fields/models/formSubmissionValue.model'; // Import your entities explicitly
+import { FormField } from '../services/form_fields/models/formField.ts.model'; // Import your entities explicitly4
+import { Form } from '../services/form_fields/models/forms.model'; // Import your entities explicitly
 
 dotenv.config();
 
@@ -30,7 +32,9 @@ export const AppDataSource = new DataSource({
         ModuleIcon,
         SubModule,
         FormSubmission,
-        FormSubmissionValue
+        FormSubmissionValue,
+        FormField,
+        Form
 
 
 

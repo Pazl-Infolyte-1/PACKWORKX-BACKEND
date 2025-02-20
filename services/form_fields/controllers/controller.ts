@@ -6,6 +6,8 @@ import { Module } from "../../module/models/module.model";
 import { SubModule } from "../../module/models/sub_module.model";
 import { FormSubmission } from "../models/formsubmission.model";
 import { FormSubmissionValue } from "../models/formSubmissionValue.model";
+import { FormField } from "../models/formField.ts.model";
+import { Form } from "../models/forms.model";
 
 interface CustomRequest extends Request {
     user?: {
@@ -66,7 +68,7 @@ export const formFields = async (req: Request, res: Response, next: NextFunction
                     }
 
                     if (submoduleDetails.form_type === 'add') {
-                        const subModuleId = submoduleDetails.id;
+                        // const subModuleId = submoduleDetails.id;
                         const query = `CALL GetFormStructure(?)`;
 
                         const result = await AppDataSource.manager.query(query, [formKey]);
@@ -157,8 +159,9 @@ export const formFields = async (req: Request, res: Response, next: NextFunction
                 try {
                     const formSubmissionRepo = AppDataSource.getRepository(FormSubmission);
                     const submissionValuesRepo = AppDataSource.getRepository(FormSubmissionValue);
-                    const formFieldRepo = AppDataSource.getRepository(SubModule); // Assuming SubModule stores form fields
-
+                    const formFieldRepo = AppDataSource.getRepository(FormField); // Assuming SubModule stores form fields
+                    const formRepo = AppDataSource.getRepository(Form);
+                    console.log(req.body);
                     // Get form_id and fields from request body
                     const { form_id, fields } = req.body;
 
@@ -171,7 +174,7 @@ export const formFields = async (req: Request, res: Response, next: NextFunction
                     }
 
                     // Validate form_id exists
-                    const formExists = await formFieldRepo.findOne({ where: { id: form_id } });
+                    const formExists = await formRepo.findOne({ where: { id: form_id } });
                     if (!formExists) {
                         res.status(404).json({
                             status: false,
@@ -182,7 +185,7 @@ export const formFields = async (req: Request, res: Response, next: NextFunction
 
                     // Fetch valid field IDs for the given form_id
                     const validFields = await AppDataSource.manager.query(
-                        "SELECT field_id FROM form_fields WHERE form_id = ?",
+                        "SELECT id AS field_id FROM form_fields WHERE form_id = ?",
                         [form_id]
                     );
 

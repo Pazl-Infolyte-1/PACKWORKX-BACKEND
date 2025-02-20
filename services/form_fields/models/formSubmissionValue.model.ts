@@ -1,29 +1,30 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm";
 import { FormSubmission } from "./formsubmission.model";
 
 @Entity("form_submission_values")
 export class FormSubmissionValue {
     @PrimaryGeneratedColumn()
-    id: number | undefined;
+    id!: number;
 
-    @Column()
-    company_id: number | undefined;
+    @Column({ type: "int", nullable: false }) // ✅ Explicitly define as integer
+    company_id!: number;
 
     @ManyToOne(() => FormSubmission, submission => submission.values, { onDelete: "CASCADE" })
-    submission: FormSubmission | undefined;
+    @JoinColumn({ name: "submission_id" }) // ✅ Explicit foreign key column
+    submission!: FormSubmission;
 
-    @Column()
-    field_id: number | undefined;
+    @Column({ type: "int", nullable: false }) // ✅ Explicitly define as integer
+    field_id!: number;
 
     @Column("text", { nullable: true })
-    value: string | undefined;
+    value!: string;
 
     @CreateDateColumn()
-    created_at: Date | undefined;
+    created_at!: Date;
 
     @UpdateDateColumn()
-    updated_at: Date | undefined;
+    updated_at!: Date;
 
     @Column({ type: "enum", enum: ["active", "inactive"], default: "active" })
-    status: "active" | "inactive" | undefined;
+    status!: "active" | "inactive";
 }

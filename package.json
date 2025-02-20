@@ -10,8 +10,7 @@
     "doc": "nodemon --exec ts-node services/docs/app.ts",
     "module": "nodemon --exec ts-node services/module/app.ts",
     "rbac": "nodemon --exec ts-node services/role-based-access-control/app.ts",
-    "forms-fields": "nodemon --exec ts-node services/form_fields/app.ts",
-    "form-submission": "nodemon --exec ts-node services/form_submission/app.ts"
+    "forms": "nodemon --exec ts-node services/form_fields/app.ts"
   },
   "keywords": [],
   "author": "",
