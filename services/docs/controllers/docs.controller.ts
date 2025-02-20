@@ -910,3 +910,92 @@
  *                   type: string
  *                   example: "Error message details"
  */
+
+/**
+ * @swagger
+ * /api/form-fields/{id}:
+ *   get:
+ *     summary: Retrieve Form Fields for a SubModule
+ *     description: Fetches dynamic form fields structure for a given sub-module based on the provided ID.
+ *     tags:
+ *       - Form Fields
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Base64 encoded form key to identify the submodule.
+ *       - in: header
+ *         name: Authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Bearer token for authentication.
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved form fields.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     pageTitle:
+ *                       type: string
+ *                     sections:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           groupName:
+ *                             type: string
+ *                           groupId:
+ *                             type: integer
+ *                           groupShow:
+ *                             type: boolean
+ *                           count:
+ *                             type: integer
+ *                           inputs:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 id:
+ *                                   type: string
+ *                                 formKey:
+ *                                   type: string
+ *                                 type:
+ *                                   type: string
+ *                                 label:
+ *                                   type: string
+ *                                 placeholder:
+ *                                   type: string
+ *                                 required:
+ *                                   type: boolean
+ *                                 name:
+ *                                   type: string
+ *                                 defaultValue:
+ *                                   type: string
+ *                                 options:
+ *                                   type: array
+ *                                   items:
+ *                                     type: object
+ *                                     properties:
+ *                                       id:
+ *                                         type: integer
+ *                                       label:
+ *                                         type: string
+ *       400:
+ *         description: User ID or Company ID is missing.
+ *       404:
+ *         description: SubModule not found or no form structure available.
+ *       500:
+ *         description: Internal Server Error.
+ */

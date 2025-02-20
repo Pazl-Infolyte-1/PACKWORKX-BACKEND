@@ -48,4 +48,10 @@ export class SubModule {
 
   @UpdateDateColumn({ type: "timestamp", nullable: true })
   updated_at: Date | undefined;
+
+  @Column({ type: "varchar", length: 191, nullable: false })
+  sub_modules_order?: string | undefined;
+
+  @Column({ type: "enum", enum: ["add", "view"], default: "view" })
+  form_type!: "add" | "view";
 }

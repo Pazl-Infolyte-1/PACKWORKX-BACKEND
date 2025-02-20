@@ -40,6 +40,13 @@ module.exports = {
             env: {
                 PORT: 3004, // Ensure correct port
             },
+        }, {
+            name: "form-Service",
+            script: "dist/services/form_fields/app.js",
+            watch: false,
+            env: {
+                PORT: 3005, // Ensure correct port
+            },
         }
     ],
 };

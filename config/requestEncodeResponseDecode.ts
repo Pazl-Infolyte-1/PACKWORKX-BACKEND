@@ -44,7 +44,7 @@ export const requestEncodeResponseDecode = (req: Request, res: Response, next: N
     }
   }else{
     console.log("No data in request body")
-    return next();
+    // return next();
     // res.status(400).json({
     //     status: false,
     //     message: 'Invalid encoded payload',

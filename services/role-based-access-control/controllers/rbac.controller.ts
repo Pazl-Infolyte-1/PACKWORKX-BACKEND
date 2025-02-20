@@ -72,7 +72,8 @@ export const rbac = async (req: Request, res: Response, next: NextFunction): Pro
                 module.subModules.push({
                     subModuleName: row.sub_module_name,
                     subModuleKey: Buffer.from(row.sub_module_key).toString("base64"),
-                    subModuleIconName: row.sub_module_icon_name
+                    subModuleIconName: row.sub_module_icon_name,
+                    SuModudleFormType: row.sub_module_form_type
                 });
             }
         
@@ -85,12 +86,14 @@ export const rbac = async (req: Request, res: Response, next: NextFunction): Pro
         });
 
     } catch (error) {
-        console.error("RBAC Error:", error);
+        const stackTrace = (error instanceof Error && error.stack) ? error.stack.split("\n")[1].trim() : "Unknown";
 
         res.status(500).json({
             status: false,
             message: "Internal Server Error",
             error: error instanceof Error ? error.message : "Unknown error",
+            filePath: __filename, // Gets current file path
+            lineNumber: stackTrace, // Extracts line number from stack trace
         });
     }
 };
