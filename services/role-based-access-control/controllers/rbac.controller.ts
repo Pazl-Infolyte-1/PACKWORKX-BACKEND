@@ -72,7 +72,7 @@ export const rbac = async (req: Request, res: Response, next: NextFunction): Pro
                 module.subModules.push({
                     subModuleName: row.sub_module_name,
                     subModuleKey: Buffer.from(row.sub_module_key).toString("base64"),
-                    subModuleIconName: row.sub_module_icon_name,
+                    subModuleIconName: "",
                     SuModudleFormType: row.sub_module_form_type
                 });
             }
