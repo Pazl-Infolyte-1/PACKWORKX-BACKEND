@@ -550,10 +550,10 @@ export const formsubmission = async (req: Request, res: Response, next: NextFunc
                 JOIN forms f ON fs.form_id = f.id
                 JOIN sub_modules sm ON f.sub_module_id = sm.id
                 JOIN form_fields ff ON f.id = ff.form_id AND fsv.field_id = ff.id
-                WHERE sm.key = ? 
+                WHERE sm.key = ? and fsv.company_id = ?  and fs.company_id = ?  and f.company_id = ?  and sm.company_id = ?  and ff.company_id = ?  and fsv.status = 'active' and fs.status = 'active' and f.status = 'active' and ff.status = 'active' and sm.status = 'active' 
                 ORDER BY f.id, fsv.submission_id, fsv.field_id ASC
                 LIMIT ? OFFSET ?;
-            `, [formKey,limit, offset]);
+            `, [formKey,companyId,companyId,companyId,companyId,companyId,limit, offset]);
 
         // Get total record count for pagination
         const totalRecordsQuery = await AppDataSource.getRepository(FormSubmissionValue)
@@ -563,8 +563,8 @@ export const formsubmission = async (req: Request, res: Response, next: NextFunc
                 JOIN forms f ON fs.form_id = f.id
                 JOIN sub_modules sm ON f.sub_module_id = sm.id
                 JOIN form_fields ff ON f.id = ff.form_id AND fsv.field_id = ff.id
-                WHERE sm.key = ?;
-            `,[formKey]);
+                WHERE sm.key = ? and fsv.company_id = ?  and fs.company_id = ?  and f.company_id = ?  and sm.company_id = ?  and ff.company_id = ?  and fsv.status = 'active' and fs.status = 'active' and f.status = 'active' and ff.status = 'active' and sm.status = 'active' 
+            `,[formKey,companyId,companyId,companyId,companyId,companyId,]);
 
         const totalRecords = totalRecordsQuery[0].total;
         const totalPages = Math.ceil(totalRecords / limit);
