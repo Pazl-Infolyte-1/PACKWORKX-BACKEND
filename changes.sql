@@ -127,3 +127,21 @@ ADD FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`);
 
 ALTER TABLE `sub_modules`
 CHANGE `form_type` `form_type` enum('add','view','get','update','delete','other') COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `sub_modules_order`;
+
+
+
+ALTER TABLE `form_fields`
+ADD `read_only` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `required`;
+
+
+ALTER TABLE `form_submissions_view`
+ADD `form_id` int unsigned NOT NULL AFTER `company_id`,
+ADD FOREIGN KEY (`form_id`) REFERENCES `forms` (`id`);
+
+
+ALTER TABLE `form_fields`
+ADD `view` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `input_value_type`,
+ADD `export` enum('yes','no') COLLATE 'utf8mb4_unicode_ci' NOT NULL DEFAULT 'no' AFTER `view`;
+
+SET foreign_key_checks = 0;
+DROP TABLE `form_submissions_export`, `form_submissions_view`;

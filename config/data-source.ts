@@ -12,7 +12,6 @@ import { FormSubmission } from '../services/form_fields/models/formsubmission.mo
 import { FormSubmissionValue } from '../services/form_fields/models/formSubmissionValue.model'; // Import your entities explicitly
 import { FormField } from '../services/form_fields/models/formField.ts.model'; // Import your entities explicitly4
 import { Form } from '../services/form_fields/models/forms.model'; // Import your entities explicitly
-
 dotenv.config();
 
 export const AppDataSource = new DataSource({
@@ -35,9 +34,6 @@ export const AppDataSource = new DataSource({
         FormSubmissionValue,
         FormField,
         Form
-
-
-
     ],
     // synchronize: true,  // Avoid in production; helpful for dev environments
     logging: false,
