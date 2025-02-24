@@ -144,93 +144,127 @@ export const formFields = async (req: Request, res: Response, next: NextFunction
                             },
                         });
                     } else if (submoduleDetails.form_type === 'view') {
-
                         const page: number = parseInt(req.query.page as string) || 1;
                         const limit: number = parseInt(req.query.limit as string) || 10;
                         const offset: number = (page - 1) * limit;
+
+                        // ✅ Step 1: Get paginated submission IDs from `form_submissions`
+                        const paginatedSubmissions = await AppDataSource.getRepository(FormSubmissionValue)
+                            .query(`
+                                SELECT fs.id AS form_submission_id
+                                FROM form_submissions fs
+                                JOIN forms f ON fs.form_id = f.id
+                                WHERE f.sub_module_key_ist LIKE CONCAT('%', ?, '%')
+                                  AND fs.company_id = ?
+                                  AND f.company_id = ?
+                                  AND fs.status = 'active'
+                                  AND f.status = 'active'
+                                ORDER BY fs.id ASC
+                                LIMIT ? OFFSET ?;
+                            `, [id, companyId, companyId, limit, offset]);
+
+                        // Extract only form_submission_id values
+                        const submissionIds = paginatedSubmissions.map((row: any) => row.form_submission_id);
+
+                        if (submissionIds.length === 0) {
+                            res.json({
+                                status: true,
+                                data: [],
+                                pagination: {
+                                    totalRecords: 0,
+                                    totalPages: 0,
+                                    currentPage: page,
+                                    limitPerPage: limit
+                                }
+                            });
+                        }
+
+                        // ✅ Step 2: Fetch form field values only for paginated submissions
                         const result = await AppDataSource.getRepository(FormSubmissionValue)
                             .query(`
-        SELECT 
-            f.id AS form_id,
-            f.name AS page_title,
-            fs.id AS form_submission_id,  
-            ff.id AS field_id, 
-            ff.name AS field_key, 
-            ff.label AS field_label,
-            fsv.value AS field_value
-        FROM form_submission_values fsv
-        JOIN form_submissions fs ON fsv.submission_id = fs.id
-        JOIN forms f ON fs.form_id = f.id 
-        JOIN form_fields ff ON f.id = ff.form_id AND fsv.field_id = ff.id
-        WHERE f.sub_module_key_ist LIKE CONCAT('%', ?, '%')  -- ✅ Secure parameterized query
-          AND fsv.company_id = ?  
-          AND fs.company_id = ?  
-          AND f.company_id = ? 
-          AND ff.company_id = ?  
-          AND fsv.status = 'active'  
-          AND fs.status = 'active'  
-          AND f.status = 'active'  
-          AND ff.status = 'active'  
-        ORDER BY f.id, fsv.submission_id, fsv.field_id ASC
-        LIMIT ? OFFSET ?;
-    `, [id, companyId, companyId, companyId, companyId, limit, offset]);
+                                SELECT 
+                                    f.id AS form_id,
+                                    f.name AS page_title,
+                                    fs.id AS form_submission_id,  
+                                    ff.id AS field_id, 
+                                    ff.name AS field_key, 
+                                    ff.label AS field_label,
+                                    fsv.value AS field_value
+                                FROM form_submission_values fsv
+                                JOIN form_submissions fs ON fsv.submission_id = fs.id
+                                JOIN forms f ON fs.form_id = f.id 
+                                JOIN form_fields ff ON f.id = ff.form_id AND fsv.field_id = ff.id
+                                WHERE fs.id IN (${submissionIds.join(',')})  -- ✅ Get only paginated submissions
+                                  AND fsv.company_id = ?  
+                                  AND fs.company_id = ?  
+                                  AND f.company_id = ? 
+                                  AND ff.company_id = ?  
+                                  AND fsv.status = 'active'  
+                                  AND fs.status = 'active'  
+                                  AND f.status = 'active'  
+                                  AND ff.status = 'active'
+                                ORDER BY f.id, fsv.submission_id, fsv.field_id ASC;
+                            `, [companyId, companyId, companyId, companyId]);
 
-                        // Get total record count for pagination
+                        // ✅ Step 3: Get total count of form submissions (for pagination)
                         const totalRecordsQuery = await AppDataSource.getRepository(FormSubmissionValue)
                             .query(`
-                    SELECT COUNT(DISTINCT fs.id) as total 
-                    FROM form_submission_values fsv
-                    JOIN form_submissions fs ON fsv.submission_id = fs.id
-                    JOIN forms f ON fs.form_id = f.id
-                    JOIN form_fields ff ON f.id = ff.form_id AND fsv.field_id = ff.id
-                    WHERE f.sub_module_key_ist LIKE CONCAT('%', ?, '%')  -- ✅ Secure parameterized query
-                      AND fsv.company_id = ?  
-                      AND fs.company_id = ?  
-                      AND f.company_id = ? 
-                      AND ff.company_id = ?  
-                      AND fsv.status = 'active'  
-                      AND fs.status = 'active'  
-                      AND f.status = 'active'  
-                      AND ff.status = 'active' 
-                `, [id, companyId, companyId, companyId, companyId, companyId]);
+                                SELECT COUNT(fs.id) as total
+                                FROM form_submissions fs
+                                JOIN forms f ON fs.form_id = f.id
+                                WHERE f.sub_module_key_ist LIKE CONCAT('%', ?, '%')
+                                  AND fs.company_id = ?
+                                  AND f.company_id = ?
+                                  AND fs.status = 'active'
+                                  AND f.status = 'active';
+                            `, [id, companyId, companyId]);
 
                         const totalRecords = totalRecordsQuery[0].total;
                         const totalPages = Math.ceil(totalRecords / limit);
 
-                        // ✅ Group data by `submission_id`
-                        const structuredData: Record<string, any[]> = {};
+                        // ✅ Step 4: Group data by `form_submission_id`
+                        interface SubmissionData {
+                            form_submission_id: number;
+                            actions: {
+                                edit: boolean;
+                                delete: boolean;
+                            };
+                            fields: {
+                                key: string;
+                                value: string;
+                                label: string;
+                            }[];
+                        }
+
+                        const structuredData: Record<string, SubmissionData> = {};
 
                         result.forEach((row: any) => {
-                            if (!structuredData[row.page_title]) {
-                                structuredData[row.page_title] = [];
+                            if (!structuredData[row.form_submission_id]) {
+                                structuredData[row.form_submission_id] = {
+                                    form_submission_id: row.form_submission_id,
+                                    actions: {
+                                        edit: true,
+                                        delete: true
+                                    },
+                                    fields: []
+                                };
                             }
 
-                            // Find the correct submission group for this submission_id
-                            let submissionGroup = structuredData[row.page_title].find((group) =>
-                                group.length > 0 && group.some((item: any) => item.form_submission_id === row.form_submission_id)
-                            );
-
-                            // If not found, create a new submission group
-                            if (!submissionGroup) {
-                                submissionGroup = [];
-                                structuredData[row.page_title].push(submissionGroup);
-                            }
-
-                            // Push the field details into the correct group
-                            submissionGroup.push({
-                                "label": row.field_label,
-                                [row.field_key]: row.field_value,
-                                "actions": {
-                                    "edit": true,
-                                    "delete": true
-                                },
-                                "form_submission_id": row.form_submission_id
+                            structuredData[row.form_submission_id].fields.push({
+                                key: row.field_key,
+                                value: row.field_value,
+                                label: row.field_label
                             });
+                            (structuredData[row.form_submission_id] as { [key: string]: any })["label_" + row.field_key] = row.field_label;
                         });
 
+                        // Convert grouped data to array
+                        const finalData = Object.values(structuredData);
+
+                        // ✅ Step 5: Return correct paginated response
                         res.json({
                             status: true,
-                            data: structuredData,
+                            data: finalData,
                             pagination: {
                                 totalRecords,
                                 totalPages,
