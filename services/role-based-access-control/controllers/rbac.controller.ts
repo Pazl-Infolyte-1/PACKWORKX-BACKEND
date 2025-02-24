@@ -71,7 +71,7 @@ export const rbac = async (req: Request, res: Response, next: NextFunction): Pro
             if (!existingSubModule) {
                 module.subModules.push({
                     subModuleName: row.sub_module_name,
-                    subModuleKey: Buffer.from(row.sub_module_key).toString("base64"),
+                    subModuleKey: row.sub_module_id,
                     subModuleIconName: "",
                     SuModudleFormType: row.sub_module_form_type
                 });

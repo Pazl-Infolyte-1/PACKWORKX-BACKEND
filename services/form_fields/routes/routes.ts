@@ -5,10 +5,8 @@ import { formFields,formFieldsSubmissionValue,formsubmission } from "../controll
 const router = Router();
 
 
-router.route('/form-fields/:id').get(formFields)
-router.route('/form-submission/:id').get(formsubmission)
+router.route('/form-fields/:id/:type').get(formFields)
+// router.route('/form-submission/:id/:type').get(formsubmission)
 router.route('/form-fields-submission').post(formFields)
-router.route('/form-fields-submission/:id').get(formFieldsSubmissionValue)
-router.route('/form-fields-submission/:id').put(formFieldsSubmissionValue)
 
 export default router;
