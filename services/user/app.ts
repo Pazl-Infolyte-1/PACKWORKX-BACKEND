@@ -8,7 +8,7 @@ import { authenticateToken } from "../../config/authmiddleware";
 import { requestEncodeResponseDecode } from "../../config/requestEncodeResponseDecode";
 import { ApiLogRequestResponse } from "../../config/log.middleware";
 const app = express();
-const PORT = 3002;
+const PORT = 4002;
 const serviceName = 'User'
 app.use(cors());
 app.use(express.json());
@@ -16,7 +16,7 @@ app.use(express.json());
 dotenv.config();
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://packworkx.pazl.info"
+  "https://tvs.in"
 ];
 app.use(
   cors({

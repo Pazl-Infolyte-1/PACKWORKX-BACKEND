@@ -60,8 +60,8 @@ export const ApiLogRequestResponse = async (req: Request, res: Response, next: N
 
                 if (res.statusCode === 500) {
                     await sendEmail({
-                        to: 'ananda.s@pazl.info',
-                        subject: 'Pack Works Application Error Notification',
+                        to: 'selvam.yesu@tvs.in',
+                        subject: 'Ticketing Tool Application Error Notification',
                         text: `An error occurred in the application:\n\nUser: ${userId}\nMethod: ${method}\nURL: ${url}\nResponse: ${data.toString()}`,
                     });
                 }
@@ -87,8 +87,8 @@ export const ApiLogRequestResponse = async (req: Request, res: Response, next: N
                 }
 
                 // await sendEmail({
-                //     to: 'ananda.s@pazl.info',
-                //     subject: 'Pack works Application Error Notification',
+                //     to: 'selvam.yesu@tvs.in',
+                //     subject: 'Ticketing Tool Application Error Notification',
                 //     text: `An error occurred in the application:\n\nUser: ${userId}\nMethod: ${method}\nURL: ${url}\nError: ${errorMessage}\nStack Trace:\n${stackTrace}`,
                 // });
             } catch (error) {

@@ -6,13 +6,12 @@ import path from 'path';
 import swaggerJSDoc, { Options } from 'swagger-jsdoc'; // Corrected import statement for authenticateToken
 import * as dotenv from 'dotenv';
 const app = express();
-const PORT = 3000;
+const PORT = 4000;
 const serviceName = 'docs'
 app.use(express.json());
 dotenv.config();
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://packworkx.pazl.info"
 ];
 app.use(
   cors({
@@ -34,17 +33,17 @@ const swaggerOptions: Options = {
   swaggerDefinition: {
     openapi: '3.0.0',
     info: {
-      title: 'Pacx Works API',
+      title: 'TVS Ticketing Tool',
       version: '1.0.0',
       description: 'API for managing Pacx Works',
       contact: {
-        name: 'Ananda Karthick',
-        email: 'ananda.s@pazl.info',
+        name: 'Selvam',
+        email: 'selvam.yesu@tvs.in',
       },
     },
     servers: [
       {
-        url: 'https://packworkx.pazl.info',
+        url: 'https://tvs.in',
         description: 'Server',
       },
     ],

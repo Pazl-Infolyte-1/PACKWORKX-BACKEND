@@ -50,7 +50,7 @@ export const rbac = async (req: Request, res: Response, next: NextFunction): Pro
                 group = { groupName: row.group_name, modules: [] };
                 acc.push(group);
             }
-        
+
             // Find the module within the group
             let module = group.modules.find((m: { moduleName: string }) => m.moduleName === row.module_name);
             if (!module) {
@@ -62,21 +62,21 @@ export const rbac = async (req: Request, res: Response, next: NextFunction): Pro
                 };
                 group.modules.push(module);
             }
-        
+
             // Check if sub-module already exists (to prevent duplicates)
             const existingSubModule = module.subModules.find(
                 (s: { subModuleKey: string }) => s.subModuleKey === Buffer.from(row.sub_module_key).toString("base64")
             );
-        
+
             if (!existingSubModule) {
                 module.subModules.push({
                     subModuleName: row.sub_module_name,
-                    subModuleKey: row.sub_module_id,
+                    subModuleKey: row.sub_module_key + '/' + row.sub_module_id + '/' + row.sub_module_form_type,
                     subModuleIconName: "",
                     SuModudleFormType: row.sub_module_form_type
                 });
             }
-        
+
             return acc;
         }, []);
         res.status(200).json({

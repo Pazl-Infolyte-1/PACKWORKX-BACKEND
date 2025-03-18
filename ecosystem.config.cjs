@@ -5,7 +5,7 @@ module.exports = {
             script: "dist/services/docs/app.js",
             watch: false,
             env: {
-                PORT: 3000, // Ensure correct port
+                PORT: 4000, // Ensure correct port
             },
         },
         {
@@ -13,7 +13,7 @@ module.exports = {
             script: "dist/services/company/app.js",
             watch: false, // Restart on file changes
             env: {
-                PORT: 3001, // Ensure correct port
+                PORT: 4001, // Ensure correct port
             },
         },
         {
@@ -21,7 +21,7 @@ module.exports = {
             script: "dist/services/user/app.js",
             watch: false,
             env: {
-                PORT: 3002, // Ensure correct port
+                PORT: 4002, // Ensure correct port
             },
         },
         {
@@ -29,7 +29,7 @@ module.exports = {
             script: "dist/services/module/app.js",
             watch: false,
             env: {
-                PORT: 3003, // Ensure correct port
+                PORT: 4003, // Ensure correct port
             },
         }
         ,
@@ -38,14 +38,14 @@ module.exports = {
             script: "dist/services/role-based-access-control/app.js",
             watch: false,
             env: {
-                PORT: 3004, // Ensure correct port
+                PORT: 4004, // Ensure correct port
             },
         }, {
             name: "form-Service",
             script: "dist/services/form_fields/app.js",
             watch: false,
             env: {
-                PORT: 3005, // Ensure correct port
+                PORT: 4005, // Ensure correct port
             },
         }
     ],

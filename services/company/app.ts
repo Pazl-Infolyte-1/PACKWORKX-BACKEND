@@ -6,13 +6,13 @@ import companyRoutes from "./routes/company.routes";
 import * as dotenv from 'dotenv';
 import { authenticateToken } from "../../config/authmiddleware";
 const app = express();
-const PORT = 3001;
+const PORT = 4001;
 const serviceName = 'Company'
 app.use(express.json());
 dotenv.config();
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://packworkx.pazl.info"
+  "https://tvs.in"
 ];
 app.use(
   cors({

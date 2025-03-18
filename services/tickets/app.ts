@@ -2,14 +2,17 @@
 import express from "express";
 import cors from "cors"; // Corrected import statement for cors
 import { AppDataSource } from "../../config/data-source";
-import Routes from "./routes/routes";
+import userRoutes from "./routes/user.routes";
 import * as dotenv from 'dotenv';
 import { authenticateToken } from "../../config/authmiddleware";
+import { requestEncodeResponseDecode } from "../../config/requestEncodeResponseDecode";
+import { ApiLogRequestResponse } from "../../config/log.middleware";
 const app = express();
-const PORT = 4005;
-const serviceName = 'Form Fields'
+const PORT = 4006;
+const serviceName = 'Tickets'
 app.use(cors());
 app.use(express.json());
+// app.use(requestEncodeResponseDecode);
 dotenv.config();
 const allowedOrigins = [
   "http://localhost:3000",
@@ -36,7 +39,8 @@ AppDataSource.initialize()
   })
   .catch((error) => console.log(`Error during ${serviceName} Data Source initialization:`, error));
 app.use(authenticateToken as express.RequestHandler);
-app.use(`/${process.env.FOLDER_NAME}`, Routes);
+app.use(ApiLogRequestResponse);
+app.use(`/${process.env.FOLDER_NAME}`, userRoutes);
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`${serviceName} Service running on port ${PORT}`);
 });

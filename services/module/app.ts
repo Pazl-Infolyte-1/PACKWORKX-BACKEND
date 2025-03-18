@@ -6,14 +6,14 @@ import moduleRoutes from "./routes/module.routes";
 import * as dotenv from 'dotenv';
 import { authenticateToken } from "../../config/authmiddleware";
 const app = express();
-const PORT = 3003;
+const PORT = 4003;
 const serviceName = 'Module'
 app.use(cors());
 app.use(express.json());
 dotenv.config();
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://packworkx.pazl.info"
+  "https://tvs.in"
 ];
 app.use(
   cors({

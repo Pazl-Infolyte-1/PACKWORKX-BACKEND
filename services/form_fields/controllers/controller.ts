@@ -114,8 +114,8 @@ export const formFields = async (req: Request, res: Response, next: NextFunction
                                     type: field.inputType,
                                     label: field.inputLabel,
                                     placeholder: field.inputPlaceholder,
-                                    readonly: Boolean(field.inputReadonly),
-                                    required: Boolean(field.inputRequired),
+                                    readonly: field.inputReadonly === "yes", // ✅ Convert "Yes" to true, "No" to false
+                                    required: field.inputRequired === "yes",
                                     name: field.inputName,
                                     defaultValue: field.inputDefaultValue,
                                     options: [],
@@ -325,11 +325,19 @@ export const formFields = async (req: Request, res: Response, next: NextFunction
                         [form_id]
                     );
 
-                    const validFieldIds = validFields.map((field: any) => field.field_id);
+                    if (!Array.isArray(validFields)) {
+                        console.error("Error: validFields is not an array!", validFields);
+                        res.status(500).json({ status: false, message: "Server error: invalid data format." });
+                        return;
+                    }
 
-                    // Validate if all submitted field_ids belong to this form_id
+                    const validFieldIds = validFields.map((field: any) => Number(field.field_id)).flat();
+                    console.log("validFieldIds:", validFieldIds);
+
+                    // Validate submitted field_ids
                     for (const field of fields) {
-                        if (!validFieldIds.includes(field.field_id)) {
+                        if (!validFieldIds.includes(Number(field.field_id))) {
+                            console.log("field.field_id:", field.field_id);
                             res.status(400).json({
                                 status: false,
                                 message: `Invalid field_id: ${field.field_id} for form_id: ${form_id}`,
@@ -344,18 +352,46 @@ export const formFields = async (req: Request, res: Response, next: NextFunction
                         form_id,
                     });
                     await formSubmissionRepo.save(newSubmission);
+                    const valuesToSave = await Promise.all(
+                        fields.map(async (field: { field_id: string; value: any }) => {
+                            let fixedValue = field.value;
 
-                    // Prepare and save form submission values
-                    const valuesToSave = fields.map((field: { field_id: number; value: string }) => {
-                        return submissionValuesRepo.create({
-                            company_id: companyId,
-                            submission: newSubmission, // Using relation
-                            field_id: field.field_id,
-                            value: field.value,
-                        });
-                    });
+                            // ✅ Convert field_id to number
+                            const fieldId = Number(field.field_id);
 
+                            // ✅ Convert empty objects `{}` to NULL
+                            if (typeof fixedValue === "object" && Object.keys(fixedValue).length === 0) {
+                                fixedValue = null;
+                            }
+
+                            // ✅ Fetch the label from `form_fields_option_value`
+                            const valueQuery = await AppDataSource.manager.query(`
+                                SELECT form_fields_option_value.label AS label_value
+                                FROM form_fields 
+                                INNER JOIN form_fields_option_value 
+                                ON form_fields.id = form_fields_option_value.form_field_id
+                                WHERE form_fields.id = ? AND form_fields_option_value.id = ?;
+                            `, [fieldId, fixedValue]);
+
+                            console.log("Value Query Result:", valueQuery);
+
+                            // ✅ If value exists, update `fixedValue`
+                            if (valueQuery.length > 0) {
+                                fixedValue = valueQuery[0].label_value;
+                            }
+
+                            return submissionValuesRepo.create({
+                                company_id: companyId,
+                                submission: newSubmission, // Using relation
+                                field_id: fieldId, // Ensure field_id is a number
+                                value: fixedValue, // Store the correct value
+                            });
+                        })
+                    );
+
+                    // ✅ Save the processed values
                     await submissionValuesRepo.save(valuesToSave);
+
 
                     res.json({
                         status: true,
@@ -491,7 +527,8 @@ export const formFieldsSubmissionValue = async (req: Request, res: Response, nex
                                     type: field.inputType,
                                     label: field.inputLabel,
                                     placeholder: field.inputPlaceholder,
-                                    required: Boolean(field.inputRequired),
+                                    readonly: field.inputReadonly === "yes", // ✅ Convert "Yes" to true, "No" to false
+                                    required: field.inputRequired === "yes",
                                     name: field.inputName,
                                     defaultValue: field.inputDefaultValue,
                                     options: [],
@@ -651,113 +688,41 @@ export const formFieldsSubmissionValue = async (req: Request, res: Response, nex
 
 export const formsubmission = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+        const formKey = req.params.id;
         const page: number = parseInt(req.query.page as string) || 1;
         const limit: number = parseInt(req.query.limit as string) || 10;
         const offset: number = (page - 1) * limit;
-        const customReq = req as CustomRequest;
-        const companyId: number | undefined = customReq?.user?.company?.id;
 
-        if (!companyId) {
-            res.status(400).json({
-                status: false,
-                message: "Company ID is missing",
-            });
-            return;
-        }
-        const id = req.params.id;
-        const formKey = Buffer.from(id, "base64").toString("utf-8");
-        console.log(formKey)
-        // Fetch paginated results
-        const result = await AppDataSource.getRepository(FormSubmissionValue)
-            .query(`
-        SELECT 
-            f.id AS form_id,
-            f.name AS page_title,
-            fs.id AS form_submission_id,  
-            ff.id AS field_id, 
-            ff.name AS field_key, 
-            ff.label AS field_label,
-            fsv.value AS field_value
-        FROM form_submission_values fsv
-        JOIN form_submissions fs ON fsv.submission_id = fs.id
-        JOIN forms f ON fs.form_id = f.id 
-        JOIN sub_modules sm ON f.sub_module_id = sm.id
-        JOIN form_fields ff ON f.id = ff.form_id AND fsv.field_id = ff.id
-        WHERE sm.key = ?  
-          AND fsv.company_id = ?  
-          AND fs.company_id = ?  
-          AND f.company_id = ?  
-          AND sm.company_id = ?  
-          AND ff.company_id = ?  
-          AND fsv.status = 'active'  
-          AND fs.status = 'active'  
-          AND f.status = 'active'  
-          AND ff.status = 'active'  
-          AND sm.status = 'active'
-        ORDER BY f.id, fsv.submission_id, fsv.field_id ASC
-        LIMIT ? OFFSET ?;
-    `, [formKey, companyId, companyId, companyId, companyId, companyId, limit, offset]);
+        // ✅ Call the Stored Procedure
+        const result = await AppDataSource.query(`CALL GetPaginatedFormSubmissions(?, ?, ?);`, [formKey, limit, offset]);
 
-        // Get total record count for pagination
-        const totalRecordsQuery = await AppDataSource.getRepository(FormSubmissionValue)
-            .query(`
-        SELECT COUNT(DISTINCT fs.id) as total 
-        FROM form_submission_values fsv
-        JOIN form_submissions fs ON fsv.submission_id = fs.id
-        JOIN forms f ON fs.form_id = f.id
-        JOIN sub_modules sm ON f.sub_module_id = sm.id
-        JOIN form_fields ff ON f.id = ff.form_id AND fsv.field_id = ff.id
-        WHERE sm.key = ?  
-          AND fsv.company_id = ?  
-          AND fs.company_id = ?  
-          AND f.company_id = ?  
-          AND sm.company_id = ?  
-          AND ff.company_id = ?  
-          AND fsv.status = 'active'  
-          AND fs.status = 'active'  
-          AND f.status = 'active'  
-          AND ff.status = 'active'  
-          AND sm.status = 'active'  
-          AND f.sub_module_key_ist LIKE CONCAT('%', sm.id, '%') -- Added LIKE filter to match main query
-    `, [formKey, companyId, companyId, companyId, companyId, companyId]);
-
-        const totalRecords = totalRecordsQuery[0].total;
+        // ✅ Extract total records from second result set
+        const totalRecords = result[1]?.[0]?.totalRecords || 0;
         const totalPages = Math.ceil(totalRecords / limit);
 
-        // ✅ Group data by `submission_id`
-        const structuredData: Record<string, any[]> = {};
-
-        result.forEach((row: any) => {
-            if (!structuredData[row.page_title]) {
-                structuredData[row.page_title] = [];
+        // ✅ Group fields by `submission_id`
+        const groupedData: Record<number, any> = {};
+        result[0].forEach((row: any) => {
+            if (!groupedData[row.submission_id]) {
+                groupedData[row.submission_id] = {
+                    submission_id: row.submission_id,
+                    fields: []
+                };
             }
-
-            // Find the correct submission group for this submission_id
-            let submissionGroup = structuredData[row.page_title].find((group) =>
-                group.length > 0 && group.some((item: any) => item.form_submission_id === row.form_submission_id)
-            );
-
-            // If not found, create a new submission group
-            if (!submissionGroup) {
-                submissionGroup = [];
-                structuredData[row.page_title].push(submissionGroup);
-            }
-
-            // Push the field details into the correct group
-            submissionGroup.push({
-                "label": row.field_label,
-                [row.field_key]: row.field_value,
-                "actions": {
-                    "edit": true,
-                    "delete": true
-                },
-                "form_submission_id": row.form_submission_id
+            groupedData[row.submission_id].fields.push({
+                id: row.id,
+                label: row.label,
+                value: row.value
             });
         });
 
+        // ✅ Convert grouped data to array
+        const formattedResult = Object.values(groupedData);
+
+        // ✅ Send JSON response
         res.json({
             status: true,
-            data: structuredData,
+            data: formattedResult,
             pagination: {
                 totalRecords,
                 totalPages,
@@ -765,6 +730,7 @@ export const formsubmission = async (req: Request, res: Response, next: NextFunc
                 limitPerPage: limit
             }
         });
+
 
     } catch (error) {
         console.error("Error fetching form data:", error);
